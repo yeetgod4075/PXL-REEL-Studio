@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PXL//REEL Studio — Viral 8-Bit Short-Form Video Engine</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #090b10;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+    .font-pixel {
+      font-family: 'Press Start 2P', monospace;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    #pixelCanvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f131d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #26304a;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3b4b72;
+    }
+    .pixel-border {
+      box-shadow: 0 0 0 2px #1e293b, 0 0 25px rgba(56, 189, 248, 0.14);
+    }
+    .active-scene-card {
+      border-color: #38bdf8 !important;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(15, 23, 42, 0.9)) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#090b10] text-slate-100 selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- Top Header Bar -->
+  <header class="border-b border-slate-800/90 bg-[#0c1018]/95 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-5 h-14 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
+          <span class="font-pixel text-[10px] text-slate-950 font-bold">PX</span>
+        </div>
+        <div class="truncate">
+          <div class="flex items-center gap-2">
+            <h1 class="font-pixel text-xs sm:text-sm tracking-tight text-white truncate">PXL//REEL STUDIO</h1>
+            <span class="hidden md:inline-flex items-center px-2 py-0.5 text-[10px] font-mono-code font-semibold uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded">9:16 Engine v2.4</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block truncate">Procedural Pixel-Art &amp; 8-Bit Chiptune Generator for Viral Informational Reels</p>
+        </div>
+      </div>
+
+      <!-- Top Action Controls -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <button id="btnConjureIdea" type="button" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1.5 transition">
+          <span>✨</span>
+          <span class="hidden sm:inline">Conjure Viral Idea</span>
+          <span class="sm:hidden">Idea</span>
+        </button>
+
+        <button id="btnAudioToggle" type="button" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 transition" title="Toggle 8-Bit Synthesizer">
+          <span id="audioIcon">🔊</span>
+          <span id="audioLabel" class="hidden md:inline">8-Bit Audio: ON</span>
+        </button>
+
+        <button id="btnRecordVideo" type="button" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/25 flex items-center gap-1.5 transition">
+          <span id="recordDot" class="w-2 h-2 rounded-full bg-white"></span>
+          <span id="recordLabel">Export .WebM Reel</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Grid -->
+  <main class="flex-1 max-w-[1600px] w-full mx-auto px-3 sm:px-5 py-4 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+    <!-- LEFT COLUMN: Viral Episode Library & Idea Conjurer (3 cols on lg) -->
+    <section class="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 order-2 lg:order-1">
+      <!-- Viral Preset Selector Card -->
+      <div class="bg-[#111622] border border-slate-800/90 rounded-xl p-3.5 shadow-xl">
+        <div class="flex items-center justify-between mb-2.5">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <span class="text-cyan-400">01</span> Viral Reel Episodes
+            </h2>
+            <p class="text-[11px] text-slate-400">Inspired by @pxlcosmos, @bit_wonder &amp; @zenith_whatif</p>
+          </div>
+          <span id="episodeCountBadge" class="text-[11px] font-mono-code px-2 py-0.5 rounded bg-slate-800 text-slate-300">8 Presets</span>
+        </div>
+
+        <div id="episodeList" class="space-y-1.5 max-h-[340px] overflow-y-auto pr-1"></div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2">
+          <button id="btnRandomIdea" type="button" class="px-2.5 py-2 rounded-lg text-xs font-medium bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1.5">
+            <span>🎲</span> Surprise Concept
+          </button>
+          <button id="btnNewBlankEpisode" type="button" class="px-2.5 py-2 rounded-lg text-xs font-medium bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 transition flex items-center justify-center gap-1.5">
+            <span>＋</span> Custom Script
+          </button>
+        </div>
+      </div>
+
+      <!-- Sound & Visual Aesthetics Panel -->
+      <div class="bg-[#111622] border border-slate-800/90 rounded-xl p-3.5 shadow-xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <span class="text-cyan-400">02</span> Retro Shader &amp; Synth FX
+          </h2>
+          <span class="text-[10px] font-mono-code text-emerald-400">WebAudio Synth</span>
+        </div>
+
+        <!-- Visual Toggles -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <label class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-slate-900/90 border border-slate-800 cursor-pointer hover:border-slate-700">
+            <span class="text-slate-300">CRT Scanlines</span>
+            <input id="chkScanlines" type="checkbox" checked class="accent-cyan-400 rounded" />
+          </label>
+          <label class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-slate-900/90 border border-slate-800 cursor-pointer hover:border-slate-700">
+            <span class="text-slate-300">Pixel Grid</span>
+            <input id="chkPixelGrid" type="checkbox" checked class="accent-cyan-400 rounded" />
+          </label>
+          <label class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-slate-900/90 border border-slate-800 cursor-pointer hover:border-slate-700">
+            <span class="text-slate-300">Reels UI Overlay</span>
+            <input id="chkReelsOverlay" type="checkbox" checked class="accent-cyan-400 rounded" />
+          </label>
+          <label class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-slate-900/90 border border-slate-800 cursor-pointer hover:border-slate-700">
+            <span class="text-slate-300">Bg Chiptune</span>
+            <input id="chkBgDrone" type="checkbox" checked class="accent-cyan-400 rounded" />
+          </label>
+        </div>
+
+        <!-- Synth Voice & Speed Controls -->
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between text-xs">
+            <label for="selVoicePitch" class="text-slate-400">Dialogue Blip Voice</label>
+            <select id="selVoicePitch" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-cyan-400">
+              <option value="cosmic">Cosmic Narrator (Mid Square)</option>
+              <option value="high">Bit-Wonder (High Chip)</option>
+              <option value="deep">Sub-Horizon (Deep Saw)</option>
+              <option value="robot">Logic Terminal (Arp Blip)</option>
+            </select>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <label for="rngVolume" class="text-slate-400">Master Synth Volume</label>
+            <input id="rngVolume" type="range" min="0" max="100" value="70" class="w-28 accent-cyan-400" />
+          </div>
+        </div>
+
+        <!-- Live 8-Bit SFX Trigger Pad -->
+        <div>
+          <div class="text-[11px] font-medium text-slate-400 mb-1.5 flex items-center justify-between">
+            <span>Live 8-Bit Soundboard (Click to Test)</span>
+            <span class="text-[10px] font-mono-code text-slate-500">Realtime Osc</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button type="button" data-sfx="powerup" class="sfx-pad-btn px-2 py-1.5 rounded bg-slate-900 hover:bg-cyan-500/20 border border-slate-800 hover:border-cyan-500/40 text-[11px] font-mono-code text-slate-300 transition">⚡ PowerUp</button>
+            <button type="button" data-sfx="rumble" class="sfx-pad-btn px-2 py-1.5 rounded bg-slate-900 hover:bg-amber-500/20 border border-slate-800 hover:border-amber-500/40 text-[11px] font-mono-code text-slate-300 transition">🌋 Drill/Sub</button>
+            <button type="button" data-sfx="ping" class="sfx-pad-btn px-2 py-1.5 rounded bg-slate-900 hover:bg-emerald-500/20 border border-slate-800 hover:border-emerald-500/40 text-[11px] font-mono-code text-slate-300 transition">📡 Sonar</button>
+            <button type="button" data-sfx="laser" class="sfx-pad-btn px-2 py-1.5 rounded bg-slate-900 hover:bg-purple-500/20 border border-slate-800 hover:border-purple-500/40 text-[11px] font-mono-code text-slate-300 transition">☄️ Photon</button>
+            <button type="button" data-sfx="alarm" class="sfx-pad-btn px-2 py-1.5 rounded bg-slate-900 hover:bg-rose-500/20 border border-slate-800 hover:border-rose-500/40 text-[11px] font-mono-code text-slate-300 transition">🚨 Geiger</button>
+            <button type="button" data-sfx="explosion" class="sfx-pad-btn px-2 py-1.5 rounded bg-slate-900 hover:bg-orange-500/20 border border-slate-800 hover:border-orange-500/40 text-[11px] font-mono-code text-slate-300 transition">💥 Crush</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CENTER COLUMN: 9:16 Vertical Pixel Viewport & Transport (4 cols on lg) -->
+    <section class="lg:col-span-4 xl:col-span-5 flex flex-col items-center order-1 lg:order-2">
+      <!-- Viewport Header Pill -->
+      <div class="w-full max-w-[380px] flex items-center justify-between mb-2 px-1">
+        <div class="flex items-center gap-2">
+          <span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="viewportStatusText" class="text-xs font-mono-code text-slate-300 uppercase tracking-wider">LIVE 9:16 PIXEL CANVAS (180×320)</span>
+        </div>
+        <span id="timecodeDisplay" class="text-xs font-mono-code text-cyan-400 bg-cyan-950/60 border border-cyan-800/50 px-2 py-0.5 rounded">00.0s / 20.0s</span>
+      </div>
+
+      <!-- 9:16 Phone Frame Container -->
+      <div class="relative w-full max-w-[360px] sm:max-w-[380px] aspect-[9/16] rounded-[26px] p-2.5 bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 pixel-border flex flex-col items-center justify-center select-none">
+        <!-- Speaker Notch -->
+        <div class="w-20 h-1.5 bg-slate-950 rounded-full mb-1.5 opacity-80"></div>
+
+        <!-- Inner Screen Wrapper -->
+        <div class="relative w-full h-full rounded-[18px] overflow-hidden bg-black border border-slate-800">
+          <!-- Main Procedural Pixel Canvas (180x320 scaled crisp to 540x960 for export) -->
+          <canvas id="pixelCanvas" width="540" height="960" class="w-full h-full block cursor-pointer" title="Click canvas to Play/Pause &amp; enable 8-bit audio"></canvas>
+
+          <!-- Tap-to-Start Audio Banner (auto-hides after interaction) -->
+          <button id="audioUnlockBanner" type="button" class="absolute top-3 left-3 right-3 bg-slate-950/90 hover:bg-slate-900 border border-cyan-400/50 text-cyan-300 rounded-lg px-3 py-2 text-[11px] font-mono-code flex items-center justify-between shadow-lg transition z-20">
+            <span>🔊 Tap anywhere to unlock 8-bit synth SFX</span>
+            <span class="px-1.5 py-0.5 bg-cyan-500/20 rounded text-[10px]">ENABLE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Transport & Timeline Scrub Controls -->
+      <div class="w-full max-w-[380px] mt-3 bg-[#111622] border border-slate-800/90 rounded-xl p-3 shadow-xl space-y-2.5">
+        <!-- Scene Progress Pills -->
+        <div id="sceneProgressPills" class="grid grid-flow-col auto-cols-fr gap-1"></div>
+
+        <!-- Main Transport Buttons -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5">
+            <button id="btnPrevScene" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition" title="Previous Scene">⏮</button>
+            <button id="btnPlayPause" type="button" class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition shadow-md shadow-cyan-500/20">
+              <span id="playPauseIcon">⏸</span>
+              <span id="playPauseText">Pause</span>
+            </button>
+            <button id="btnNextScene" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition" title="Next Scene">⏭</button>
+            <button id="btnRestart" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" title="Restart Episode">↺</button>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button id="btnSnapFrame" type="button" class="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1" title="Download 1080x1920 PNG Frame">
+              <span>📸</span> <span class="hidden sm:inline">PNG</span>
+            </button>
+            <button id="btnCopyScript" type="button" class="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1" title="Copy Viral Hook, Timed Captions &amp; Hashtags">
+              <span>📋</span> <span>Copy Script</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: Scene Timeline & Live Script Editor (4 cols on lg) -->
+    <section class="lg:col-span-4 xl:col-span-4 flex flex-col gap-4 order-3">
+      <!-- Episode Header & Hook Metadata Editor -->
+      <div class="bg-[#111622] border border-slate-800/90 rounded-xl p-3.5 shadow-xl space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <span class="text-cyan-400">03</span> Storyboard &amp; Script Editor
+            </h2>
+            <p class="text-[11px] text-slate-400">Click any scene card to jump &amp; edit its live pixel parameters</p>
+          </div>
+          <button id="btnAddScene" type="button" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 transition">
+            + Add Scene
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label for="inpEpisodeTitle" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">Episode Title</label>
+            <input id="inpEpisodeTitle" type="text" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400" />
+          </div>
+          <div>
+            <label for="inpChannelHandle" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">Creator Handle Watermark</label>
+            <input id="inpChannelHandle" type="text" value="@pxl_whatif" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 font-mono-code focus:outline-none focus:border-cyan-400" />
+          </div>
+        </div>
+
+        <!-- Scene Timeline List -->
+        <div id="sceneTimelineList" class="space-y-2 max-h-[260px] overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- Active Scene Inspector -->
+      <div class="bg-[#111622] border border-slate-800/90 rounded-xl p-3.5 shadow-xl space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <span id="inspectorSceneBadge" class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono-code text-xs font-bold">SCENE 1</span>
+            <span class="text-xs font-semibold text-slate-300">Live Scene Parameters</span>
+          </div>
+          <button id="btnDeleteScene" type="button" class="text-[11px] text-rose-400 hover:text-rose-300 font-medium px-2 py-0.5 rounded hover:bg-rose-500/10 transition">
+            Delete Scene
+          </button>
+        </div>
+
+        <div class="space-y-2.5">
+          <div>
+            <label for="inpSceneCaption" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">Typewriter Narration / Hook Text</label>
+            <textarea id="inpSceneCaption" rows="2" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="inpSceneMetric" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">HUD Metric Readout</label>
+              <input id="inpSceneMetric" type="text" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2.5 py-1.5 text-xs font-mono-code text-amber-300 focus:outline-none focus:border-cyan-400" />
+            </div>
+            <div>
+              <label for="inpSceneSubfact" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">Scientific Sub-Label</label>
+              <input id="inpSceneSubfact" type="text" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label for="selSceneMode" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">Pixel Simulation</label>
+              <select id="selSceneMode" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400">
+                <option value="drill">Earth Core Drill</option>
+                <option value="saturn">Saturn Plunge</option>
+                <option value="relativity">Gravity Clocks</option>
+                <option value="flood">Rising Sea Skyline</option>
+                <option value="lightspeed">Cosmic Photon Race</option>
+                <option value="ocean">Abyssal Trench</option>
+                <option value="quantum">Subatomic Zoom</option>
+                <option value="dyson">Dyson Megastructure</option>
+              </select>
+            </div>
+            <div>
+              <label for="selSceneSfx" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">Transition SFX</label>
+              <select id="selSceneSfx" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400">
+                <option value="powerup">⚡ PowerUp Arp</option>
+                <option value="rumble">🌋 Deep Rumble</option>
+                <option value="ping">📡 Sonar Ping</option>
+                <option value="laser">☄️ Photon Zip</option>
+                <option value="alarm">🚨 Geiger Alert</option>
+                <option value="explosion">💥 Core Impact</option>
+              </select>
+            </div>
+            <div>
+              <label for="inpSceneDuration" class="block text-[10px] font-mono-code uppercase text-slate-400 mb-1">Duration (Sec)</label>
+              <input id="inpSceneDuration" type="number" min="2" max="15" step="0.5" class="w-full bg-slate-900 border border-slate-700/90 rounded-lg px-2.5 py-1.5 text-xs font-mono-code text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between text-[10px] font-mono-code uppercase text-slate-400 mb-1">
+              <label for="rngSceneIntensity">Simulation Progression / Depth Intensity</label>
+              <span id="lblSceneIntensity" class="text-cyan-400">Level 3 / 5</span>
+            </div>
+            <input id="rngSceneIntensity" type="range" min="1" max="5" step="1" value="3" class="w-full accent-cyan-400" />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Viral Idea Conjurer Modal -->
+  <div id="ideaModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#111622] border border-slate-700 rounded-2xl max-w-2xl w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">✨</span>
+          <div>
+            <h3 class="font-pixel text-xs sm:text-sm text-amber-300">VIRAL CONCEPT CONJURER</h3>
+            <p class="text-xs text-slate-400">High-retention hooks engineered for 9:16 pixel simulation channels</p>
+          </div>
+        </div>
+        <button id="btnCloseModal" type="button" class="text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800 text-xs">✕ Close</button>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap gap-1.5" id="ideaCategoryBar">
+        <button type="button" data-cat="all" class="idea-cat-btn px-3 py-1 rounded-full text-xs font-medium bg-cyan-500 text-slate-950">All Niches</button>
+        <button type="button" data-cat="Cosmos" class="idea-cat-btn px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">🌌 Cosmos</button>
+        <button type="button" data-cat="Earth" class="idea-cat-btn px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">🌍 Extreme Earth</button>
+        <button type="button" data-cat="Physics" class="idea-cat-btn px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">⚛️ Physics &amp; Scale</button>
+      </div>
+
+      <!-- Generated Idea Cards Container -->
+      <div id="conjuredIdeasGrid" class="space-y-2.5 max-h-[360px] overflow-y-auto pr-1"></div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">
+        <span>Click "Load Into Studio" on any concept to auto-build its pixel scenes &amp; SFX.</span>
+        <button id="btnShuffleModalIdeas" type="button" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold transition">
+          🔄 Shuffle Hooks
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBanner" class="fixed bottom-4 right-4 z-50 hidden bg-slate-900/95 border border-cyan-500/50 text-slate-100 px-4 py-2.5 rounded-xl shadow-2xl text-xs font-medium items-center gap-2">
+    <span class="text-cyan-400">✔</span>
+    <span id="toastMessage">Action completed</span>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. PRE-LOADED VIRAL PIXEL-REEL EPISODES (8 Complete Multi-Scene Scripts)
+    // =========================================================================
+    const INITIAL_EPISODES = [
+      {
+        id: 'dig-deep',
+        title: 'How Deep Can You Actually Dig?',
+        category: 'Earth',
+        viralScore: '98% Retention',
+        hashtags: '#whatif #pixelart #earthcore #sciencefacts #deepest',
+        scenes: [
+          {
+            mode: 'drill',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'powerup',
+            metric: 'DEPTH: 0 m (SURFACE)',
+            subfact: 'TEMP: 15°C • SOIL & BEDROCK',
+            caption: 'If you dug straight down, you wouldn’t reach China—you’d melt first.'
+          },
+          {
+            mode: 'drill',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'ping',
+            metric: 'DEPTH: 3,900 m',
+            subfact: 'MPONENG GOLD MINE • 66°C',
+            caption: 'At 3.9 km down, the rock hits 66°C. Miners need ice-slurry pumped in just to breathe.'
+          },
+          {
+            mode: 'drill',
+            intensity: 3,
+            duration: 4.5,
+            sfx: 'rumble',
+            metric: 'DEPTH: 12,262 m',
+            subfact: 'KOLA SUPERDEEP BOREHOLE • 180°C',
+            caption: 'At 12.2 km, Soviet drills hit 180°C. Solid granite stopped acting like rock and flowed like plastic.'
+          },
+          {
+            mode: 'drill',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'alarm',
+            metric: 'DEPTH: 41,000 m',
+            subfact: 'MOHO BOUNDARY • 900°C',
+            caption: 'At 41 km, titanium drill bits lose their temper and warp under 11,000 atmospheres.'
+          },
+          {
+            mode: 'drill',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'DEPTH: 2,900,000 m',
+            subfact: 'OUTER CORE • 4,500°C MAGMA',
+            caption: 'And we still only scratched 0.2% of the way to Earth’s 5,200°C iron core.'
+          }
+        ]
+      },
+      {
+        id: 'fall-saturn',
+        title: 'If You Fell Into Saturn',
+        category: 'Cosmos',
+        viralScore: '97% Retention',
+        hashtags: '#saturn #spacefacts #pixelanimation #astrophysics #cosmos',
+        scenes: [
+          {
+            mode: 'saturn',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'powerup',
+            metric: 'PRESSURE: 0.5 BAR',
+            subfact: 'AMMONIA CLOUD TOPS • -178°C',
+            caption: 'Saturn has no solid ground to land on—here is what happens as you sink inside.'
+          },
+          {
+            mode: 'saturn',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'ping',
+            metric: 'PRESSURE: 10 BAR',
+            subfact: 'AMMONIUM HYDROSULFIDE FOG',
+            caption: '80 km down, pitch-black storm winds whip you sideways at 1,800 km/h—faster than sound on Earth.'
+          },
+          {
+            mode: 'saturn',
+            intensity: 3,
+            duration: 4.0,
+            sfx: 'rumble',
+            metric: 'PRESSURE: 1,000 BAR',
+            subfact: 'MARIANA TRENCH PRESSURE IN SKY',
+            caption: 'At 300 km deep, the hydrogen gas around you squeezes as thick and dense as ocean water.'
+          },
+          {
+            mode: 'saturn',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'alarm',
+            metric: 'PRESSURE: 1,000,000 BAR',
+            subfact: 'LIQUID METALLIC HYDROGEN • 6,000°C',
+            caption: 'Halfway down, pressure rips electrons free—turning hydrogen into a glowing, electrified liquid metal sea.'
+          },
+          {
+            mode: 'saturn',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'PRESSURE: 10,000,000 BAR',
+            subfact: 'CRUSHED AT CORE BOUNDARY',
+            caption: 'You never touch down: you stop sinking when the atmosphere becomes denser than your own body.'
+          }
+        ]
+      },
+      {
+        id: 'planet-time',
+        title: '1 Second on Every Cosmic Body',
+        category: 'Physics',
+        viralScore: '96% Retention',
+        hashtags: '#relativity #blackhole #interstellar #pixelart #spacetime',
+        scenes: [
+          {
+            mode: 'relativity',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'ping',
+            metric: 'GRAVITY: 1.0 G (EARTH)',
+            subfact: 'DRIFT: +0.000000s / YEAR',
+            caption: '1 second on Earth feels normal—until extreme gravity starts bending time itself.'
+          },
+          {
+            mode: 'relativity',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'powerup',
+            metric: 'SUN SURFACE: 28 G',
+            subfact: 'DRIFT: -66 SECONDS / YEAR',
+            caption: 'Stand on the Sun’s surface and your watch loses 66 seconds every year compared to Earth.'
+          },
+          {
+            mode: 'relativity',
+            intensity: 3,
+            duration: 4.0,
+            sfx: 'laser',
+            metric: 'WHITE DWARF: 350,000 G',
+            subfact: 'SIRIUS B • DENSE ELECTRON STAR',
+            caption: 'On a White Dwarf, gravity crushes a Sun’s mass into an Earth-sized sphere, visibly dragging every tick.'
+          },
+          {
+            mode: 'relativity',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'alarm',
+            metric: 'NEUTRON STAR: 10¹¹ G',
+            subfact: 'TIME SLOWS BY 30%',
+            caption: 'On a Neutron Star, 1 hour for you equals 85 minutes back on Earth. Even light curves around you.'
+          },
+          {
+            mode: 'relativity',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'EVENT HORIZON: ∞ DILATION',
+            subfact: '1 SEC = MILLIONS OF EARTH YEARS',
+            caption: 'Hover inches above a Black Hole horizon and your clock freezes while galaxies age and die outside.'
+          }
+        ]
+      },
+      {
+        id: 'ice-melt',
+        title: 'What If All Ice Melted Overnight?',
+        category: 'Earth',
+        viralScore: '95% Retention',
+        hashtags: '#climate #whatif #sealevel #pixelworld #geography',
+        scenes: [
+          {
+            mode: 'flood',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'ping',
+            metric: 'SEA LEVEL: +0.0 m',
+            subfact: 'CURRENT GLOBAL COASTLINE',
+            caption: 'If every glacier on Earth melted tonight, the Statue of Liberty would be knee-deep by sunrise.'
+          },
+          {
+            mode: 'flood',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'rumble',
+            metric: 'SEA LEVEL: +7.4 m',
+            subfact: 'GREENLAND ICE SHEET MELTS',
+            caption: 'Melting Greenland alone raises oceans 7.4 meters—submerging Miami, Amsterdam, and downtown London.'
+          },
+          {
+            mode: 'flood',
+            intensity: 3,
+            duration: 4.0,
+            sfx: 'alarm',
+            metric: 'SEA LEVEL: +35.0 m',
+            subfact: 'WEST ANTARCTICA COLLAPSES',
+            caption: 'At +35 meters, the Atlantic swallows Florida whole and turns the Amazon basin into an inland sea.'
+          },
+          {
+            mode: 'flood',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'laser',
+            metric: 'SEA LEVEL: +58.0 m',
+            subfact: 'EAST ANTARCTIC ICE SHEET',
+            caption: 'At +58 meters, Cairo, Tokyo, and Shanghai vanish beneath dark coastal waves.'
+          },
+          {
+            mode: 'flood',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'SEA LEVEL: +70.0 m MAX',
+            subfact: '3.2 BILLION PEOPLE DISPLACED',
+            caption: 'Oceans peak at +70 meters—creating a giant inland sea in Australia and redrawing every continent.'
+          }
+        ]
+      },
+      {
+        id: 'cosmic-speed',
+        title: 'The Sound of Every Cosmic Speed',
+        category: 'Cosmos',
+        viralScore: '97% Retention',
+        hashtags: '#speedoflight #universe #pixelcosmos #astronomy #scale',
+        scenes: [
+          {
+            mode: 'lightspeed',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'laser',
+            metric: 'DIST: 384,400 KM (MOON)',
+            subfact: 'LIGHT TRAVEL TIME: 1.28 SEC',
+            caption: 'Light feels instant on Earth—circling our equator 7.5 times in a single second.'
+          },
+          {
+            mode: 'lightspeed',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'ping',
+            metric: 'DIST: 225,000,000 KM (MARS)',
+            subfact: 'LIGHT TRAVEL TIME: 12 MIN 30 SEC',
+            caption: 'Shoot a laser at Mars and you have to wait over 12 minutes just for the beam to arrive.'
+          },
+          {
+            mode: 'lightspeed',
+            intensity: 3,
+            duration: 4.0,
+            sfx: 'powerup',
+            metric: 'DIST: 4.24 LIGHT YEARS',
+            subfact: 'PROXIMA CENTAURI • NEAREST STAR',
+            caption: 'To reach our nearest neighboring star, a photon flies through freezing vacuum for over 4 years.'
+          },
+          {
+            mode: 'lightspeed',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'alarm',
+            metric: 'DIST: 2.5 MILLION LIGHT YEARS',
+            subfact: 'ANDROMEDA GALAXY',
+            caption: 'Zoom out to Andromeda and light itself crawls like a snail—taking 2.5 million years to cross the gap.'
+          },
+          {
+            mode: 'lightspeed',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'SCALE: 93 BILLION LIGHT YEARS',
+            subfact: 'SPACE EXPANDS FASTER THAN LIGHT',
+            caption: 'At the edge of the observable universe, space expands so fast your beam of light will never arrive.'
+          }
+        ]
+      },
+      {
+        id: 'mariana-abyss',
+        title: 'Descending the Mariana Trench',
+        category: 'Earth',
+        viralScore: '94% Retention',
+        hashtags: '#ocean #marianatrench #deepsea #pixelart #thalassophobia',
+        scenes: [
+          {
+            mode: 'ocean',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'ping',
+            metric: 'DEPTH: 200 m (SUNLIGHT ZONE)',
+            subfact: 'PHOTOSYNTHESIS STOPS HERE',
+            caption: 'If you drop Mt. Everest into the Mariana Trench, its peak would still sit 2 kilometers underwater.'
+          },
+          {
+            mode: 'ocean',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'rumble',
+            metric: 'DEPTH: 1,000 m (MIDNIGHT ZONE)',
+            subfact: 'ZERO SUNLIGHT • 4°C WATER',
+            caption: 'At 1,000 meters, the last photon of sunlight dies. Only glowing bioluminescent predators exist here.'
+          },
+          {
+            mode: 'ocean',
+            intensity: 3,
+            duration: 4.0,
+            sfx: 'alarm',
+            metric: 'DEPTH: 3,800 m (TITANIC WRECK)',
+            subfact: 'PRESSURE: 378 ATMOSPHERES',
+            caption: 'At 3,800 meters rests the Titanic—crushed under 378 atmospheres of freezing Atlantic water.'
+          },
+          {
+            mode: 'ocean',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'laser',
+            metric: 'DEPTH: 8,178 m (FISH LIMIT)',
+            subfact: 'SNAILFISH PROTEIN BARRIER',
+            caption: 'Below 8,200 meters, zero fish can survive—water pressure literally squeezes cell membranes apart.'
+          },
+          {
+            mode: 'ocean',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'DEPTH: 10,935 m (CHALLENGER DEEP)',
+            subfact: '1,086 BARS • 8 TONS PER SQ INCH',
+            caption: 'At the bottom of Challenger Deep, 1,086 bars of pressure feel like 50 jumbo jets stacked on your chest.'
+          }
+        ]
+      },
+      {
+        id: 'quantum-zoom',
+        title: 'Zooming Into a Single Atom',
+        category: 'Physics',
+        viralScore: '96% Retention',
+        hashtags: '#quantum #physics #scaleoftheuniverse #pixelart #atoms',
+        scenes: [
+          {
+            mode: 'quantum',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'powerup',
+            metric: 'SCALE: 10⁻⁴ m (100 MICRONS)',
+            subfact: 'WIDTH OF A HUMAN HAIR',
+            caption: 'If an atom were the size of a football stadium, its nucleus would be a single glass marble on the 50-yard line.'
+          },
+          {
+            mode: 'quantum',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'ping',
+            metric: 'SCALE: 10⁻⁷ m (100 NANOMETERS)',
+            subfact: 'SMALLER THAN VISIBLE LIGHT WAVES',
+            caption: 'Zoom past bacteria and viruses: at 100 nanometers, objects are smaller than wavelengths of visible color.'
+          },
+          {
+            mode: 'quantum',
+            intensity: 3,
+            duration: 4.0,
+            sfx: 'laser',
+            metric: 'SCALE: 10⁻¹⁰ m (1 ANGSTROM)',
+            subfact: 'CARBON ATOM ELECTRON CLOUD',
+            caption: 'At 0.1 nanometers, you enter the electron cloud—99.9999999999996% of this atom is pure empty space.'
+          },
+          {
+            mode: 'quantum',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'alarm',
+            metric: 'SCALE: 10⁻¹⁵ m (1 FEMTOMETER)',
+            subfact: 'PROTONS & QUARKS IN GLUON FIELD',
+            caption: 'Inside the proton, quarks whip around at nearly light speed, bound by gluon energy fields.'
+          },
+          {
+            mode: 'quantum',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'SCALE: 10⁻³⁵ m (PLANCK LENGTH)',
+            subfact: 'QUANTUM FOAM • SHORTEST DISTANCE',
+            caption: 'At the Planck Length, geometry breaks down into quantum foam—where "distance" ceases to exist.'
+          }
+        ]
+      },
+      {
+        id: 'dyson-sphere',
+        title: 'Building a Dyson Swarm Around the Sun',
+        category: 'Cosmos',
+        viralScore: '95% Retention',
+        hashtags: '#dysonsphere #kardashev #scifi #pixelcosmos #futurism',
+        scenes: [
+          {
+            mode: 'dyson',
+            intensity: 1,
+            duration: 3.5,
+            sfx: 'powerup',
+            metric: 'KARDASHEV TYPE: 0.73',
+            subfact: 'HUMANITY USES 0.0001% OF SUNLIGHT',
+            caption: 'Every second, the Sun blasts 400 septillion watts into empty space—what if we captured all of it?'
+          },
+          {
+            mode: 'dyson',
+            intensity: 2,
+            duration: 4.0,
+            sfx: 'ping',
+            metric: 'SWARM NODES: 1,000,000',
+            subfact: 'DISASSEMBLING MERCURY FOR METAL',
+            caption: 'Step 1: Strip-mine the entire planet Mercury using self-replicating solar robots to forge mirror panels.'
+          },
+          {
+            mode: 'dyson',
+            intensity: 3,
+            duration: 4.0,
+            sfx: 'laser',
+            metric: 'SOLAR CAPTURE: 14.5%',
+            subfact: '1 BILLION ORBITAL COLLECTORS',
+            caption: 'Within 60 years of exponential replication, a glittering hexagonal swarm dims the Sun from afar.'
+          },
+          {
+            mode: 'dyson',
+            intensity: 4,
+            duration: 4.0,
+            sfx: 'rumble',
+            metric: 'SOLAR CAPTURE: 99.8%',
+            subfact: '4 × 10²⁶ WATTS HARVESTED',
+            caption: 'With 99% coverage, humanity commands a trillion times more energy than every power plant in history combined.'
+          },
+          {
+            mode: 'dyson',
+            intensity: 5,
+            duration: 4.5,
+            sfx: 'explosion',
+            metric: 'KARDASHEV TYPE II ACHIEVED',
+            subfact: 'STELLAR ENGINE THRUST ACTIVE',
+            caption: 'We could fire that energy as a stellar thruster—steering our entire Solar System across the galaxy.'
+          }
+        ]
+      }
+    ];
+
+    // Additional viral idea pool for the "Conjure Viral Idea" modal
+    const EXTRA_CONJURED_IDEAS = [
+      {
+        id: 'neutron-teaspoon',
+        title: 'If You Dropped 1 Teaspoon of Neutron Star on Earth',
+        category: 'Physics',
+        hook: 'A single teaspoon of neutron star weighs 4 billion tons—more than every car on Earth combined.',
+        payoff: 'It wouldn’t sit on the ground: it would punch straight through Earth’s crust like a bullet through tissue paper and oscillate back and forth through the core.',
+        mode: 'drill',
+        scenes: [
+          { mode: 'drill', intensity: 1, duration: 3.5, sfx: 'powerup', metric: 'MASS: 4,000,000,000 TONS', subfact: 'VOLUME: 5 MILLILITERS (1 TSP)', caption: 'A single teaspoon of neutron star weighs 4 billion tons—as much as Mount Everest crushed into a sugar cube.' },
+          { mode: 'drill', intensity: 3, duration: 4.0, sfx: 'rumble', metric: 'PRESSURE: ∞ GROUND FAILURE', subfact: 'ZERO FRICTION STOPPING POWER', caption: 'Drop it from your hand and bedrock offers no more resistance than thin air. It plunges straight toward the center of the Earth.' },
+          { mode: 'drill', intensity: 4, duration: 4.0, sfx: 'alarm', metric: 'SPEED: 11.2 KM/S AT CORE', subfact: 'PLASMA CAVITATION TUNNEL', caption: 'It hits the Earth’s core in 21 minutes, carving a superheated plasma tunnel and triggering global magnitude-9 quakes.' },
+          { mode: 'drill', intensity: 5, duration: 4.5, sfx: 'explosion', metric: 'DECOMPRESSION: 0.1c BLAST', subfact: 'NEUTRON BETA DECAY EXPLOSION', caption: 'Worse: freed from neutron-star gravity, the spoonful violently decompresses with the energy of 100,000 Tsar Bombas.' }
+        ]
+      },
+      {
+        id: 'sound-planets',
+        title: 'What Your Voice Sounds Like on Every World',
+        category: 'Cosmos',
+        hook: 'On Mars your scream barely carries 10 meters—on Venus, the air is so thick your vocal cords vibrate like a bass guitar.',
+        payoff: 'On Titan, cold nitrogen air slows sound down while dropping your voice into a slow-motion giant.',
+        mode: 'saturn',
+        scenes: [
+          { mode: 'saturn', intensity: 1, duration: 3.5, sfx: 'ping', metric: 'EARTH: 343 m/s SOUND', subfact: '1 BAR NITROGEN-OXYGEN', caption: 'Your voice only sounds like "you" because it was built for Earth’s 1-bar nitrogen atmosphere.' },
+          { mode: 'saturn', intensity: 2, duration: 4.0, sfx: 'laser', metric: 'MARS: 240 m/s MUFFLED', subfact: '0.006 BAR CO2 ATMOSPHERE', caption: 'On Mars, thin carbon dioxide swallows high frequencies instantly—a shout sounds like a distant muffled whisper.' },
+          { mode: 'saturn', intensity: 4, duration: 4.0, sfx: 'rumble', metric: 'VENUS: 410 m/s DEEP BASS', subfact: '92 BARS SUPERCRITICAL CO2', caption: 'On Venus, crushing soup-thick air turns your vocal cords into slow-moving paddles—making you sound like a deep bass synth.' },
+          { mode: 'saturn', intensity: 5, duration: 4.5, sfx: 'explosion', metric: 'SUN CORONA: 140 dB ROAR', subfact: 'IF SPACE TRANSMITTED SOUND', caption: 'And if empty space had air, the Sun would roar across 150 million km at a deafening 110 decibels day and night.' }
+        ]
+      },
+      {
+        id: 'voyager-timeline',
+        title: 'How Far Will Voyager 1 Travel After Humanity Ends?',
+        category: 'Cosmos',
+        hook: 'Launched in 1977 with 69 kilobytes of memory, Voyager 1 is the farthest human object in existence.',
+        payoff: 'In 5 billion years, after the Sun swallows Earth, Voyager’s Golden Record will still drift intact across the Milky Way.',
+        mode: 'lightspeed',
+        scenes: [
+          { mode: 'lightspeed', intensity: 1, duration: 3.5, sfx: 'ping', metric: 'YEAR: 2026 (24.5 BILLION KM)', subfact: 'SPEED: 17 KM PER SECOND', caption: 'Voyager 1 is 24.5 billion km away—running on less memory than a single low-res JPEG.' },
+          { mode: 'lightspeed', intensity: 2, duration: 4.0, sfx: 'powerup', metric: 'YEAR: +300 YEARS', subfact: 'ENTERING THE OORT CLOUD', caption: 'Even moving at 61,000 km/h, it won’t even reach the inner edge of the Oort Cloud for another 300 years.' },
+          { mode: 'lightspeed', intensity: 4, duration: 4.0, sfx: 'laser', metric: 'YEAR: +40,000 YEARS', subfact: 'PASSING STAR AC+79 3888', caption: 'In 40,000 years, long after its plutonium battery freezes dead, it will pass within 1.6 light-years of a red dwarf in Camelopardalis.' },
+          { mode: 'lightspeed', intensity: 5, duration: 4.5, sfx: 'explosion', metric: 'YEAR: +5,000,000,000 YEARS', subfact: 'OUTLIVING PLANET EARTH', caption: 'In 5 billion years, the expanding Sun will vaporize Earth—leaving Voyager’s gold record as the last proof we ever existed.' }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. APPLICATION STATE
+    // =========================================================================
+    let episodes = JSON.parse(JSON.stringify(INITIAL_EPISODES));
+    let currentEpisodeIndex = 0;
+    let currentSceneIndex = 0;
+    let isPlaying = true;
+    let sceneElapsed = 0; // seconds into current scene
+    let lastFrameTime = performance.now();
+    let typedCharsCount = 0;
+    let lastTypedCharIndex = -1;
+    let screenShakeTimer = 0;
+
+    // Visual & Audio Preferences
+    const prefs = {
+      scanlines: true,
+      pixelGrid: true,
+      reelsOverlay: true,
+      bgDrone: true,
+      audioEnabled: true,
+      voicePitch: 'cosmic',
+      volume: 0.70,
+      handle: '@pxl_whatif'
+    };
+
+    // MediaRecorder state for .webm export
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+
+    // =========================================================================
+    // 3. WEB AUDIO API 8-BIT SYNTHESIZER & SOUND ENGINE
+    // =========================================================================
+    let audioCtx = null;
+    let masterGain = null;
+    let mediaStreamDest = null;
+    let audioUnlocked = false;
+    let droneStepTimer = 0;
+    let droneNoteIndex = 0;
+
+    function initAudioEngine() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        audioCtx = new AudioContextClass();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = prefs.volume;
+        masterGain.connect(audioCtx.destination);
+
+        if (audioCtx.createMediaStreamDestination) {
+          mediaStreamDest = audioCtx.createMediaStreamDestination();
+          masterGain.connect(mediaStreamDest);
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      audioUnlocked = true;
+      const banner = document.getElementById('audioUnlockBanner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    function playTextBlip(char) {
+      if (!prefs.audioEnabled || !audioCtx || audioCtx.state !== 'running') return;
+      if (!char || char === ' ') return;
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      let baseFreq = 360;
+      let waveType = 'square';
+      if (prefs.voicePitch === 'high') {
+        baseFreq = 620;
+        waveType = 'square';
+      } else if (prefs.voicePitch === 'deep') {
+        baseFreq = 195;
+        waveType = 'sawtooth';
+      } else if (prefs.voicePitch === 'robot') {
+        baseFreq = 440;
+        waveType = 'triangle';
+      }
+
+      const charCodeOffset = ((char.charCodeAt(0) % 7) - 3) * 22;
+      osc.type = waveType;
+      osc.frequency.setValueAtTime(baseFreq + charCodeOffset, now);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(80, baseFreq + charCodeOffset - 40), now + 0.038);
+
+      gain.gain.setValueAtTime(0.08 * prefs.volume, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.038);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    }
+
+    function playSynthSfx(type) {
+      if (!prefs.audioEnabled) return;
+      initAudioEngine();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'powerup') {
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(freq, now + i * 0.055);
+          g.gain.setValueAtTime(0.14 * prefs.volume, now + i * 0.055);
+          g.gain.exponentialRampToValueAtTime(0.001, now + (i + 1) * 0.065);
+          osc.connect(g);
+          g.connect(masterGain);
+          osc.start(now + i * 0.055);
+          osc.stop(now + (i + 1) * 0.07);
+        });
+      } else if (type === 'ping') {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(440, now + 0.35);
+        g.gain.setValueAtTime(0.22 * prefs.volume, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.connect(g);
+        g.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'laser') {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.22);
+        g.gain.setValueAtTime(0.16 * prefs.volume, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.connect(g);
+        g.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } else if (type === 'alarm') {
+        for (let i = 0; i < 3; i++) {
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(740, now + i * 0.09);
+          osc.frequency.setValueAtTime(520, now + i * 0.09 + 0.04);
+          g.gain.setValueAtTime(0.15 * prefs.volume, now + i * 0.09);
+          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.08);
+          osc.connect(g);
+          g.connect(masterGain);
+          osc.start(now + i * 0.09);
+          osc.stop(now + i * 0.09 + 0.085);
+        }
+      } else if (type === 'rumble') {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(95, now);
+        osc.frequency.linearRampToValueAtTime(52, now + 0.45);
+        g.gain.setValueAtTime(0.24 * prefs.volume, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+        osc.connect(g);
+        g.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + 0.5);
+      } else if (type === 'explosion') {
+        screenShakeTimer = 0.45;
+        // White noise burst + low sub drop
+        const bufferSize = audioCtx.sampleRate * 0.55;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.18));
+        }
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(650, now);
+        filter.frequency.exponentialRampToValueAtTime(90, now + 0.5);
+
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.32 * prefs.volume, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.54);
+
+        whiteNoise.connect(filter);
+        filter.connect(g);
+        g.connect(masterGain);
+        whiteNoise.start(now);
+      }
+    }
+
+    function stepBackgroundArp(dt, intensity) {
+      if (!prefs.audioEnabled || !prefs.bgDrone || !isPlaying || !audioCtx || audioCtx.state !== 'running') return;
+      droneStepTimer += dt;
+      const stepInterval = Math.max(0.14, 0.28 - intensity * 0.025);
+      if (droneStepTimer >= stepInterval) {
+        droneStepTimer = 0;
+        const baseScale = [110, 130.81, 164.81, 196.00, 220.00, 164.81];
+        const freq = baseScale[droneNoteIndex % baseScale.length] * (1 + (intensity - 1) * 0.12);
+        droneNoteIndex++;
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        g.gain.setValueAtTime(0.04 * prefs.volume, now);
+        g.gain.exponentialRampToValueAtTime(0.0008, now + stepInterval * 0.9);
+        osc.connect(g);
+        g.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + stepInterval);
+      }
+    }
+
+    // =========================================================================
+    // 4. PROCEDURAL PIXEL-ART CANVAS RENDERER (180x320 Virtual Pixel Grid)
+    // =========================================================================
+    const canvas = document.getElementById('pixelCanvas');
+    const ctx = canvas.getContext('2d');
+    const offscreen = document.createElement('canvas');
+    offscreen.width = 180;
+    offscreen.height = 320;
+    const pctx = offscreen.getContext('2d');
+
+    // Deterministic starfield & particle pool
+    const stars = Array.from({ length: 65 }, (_, i) => ({
+      x: (i * 37) % 180,
+      y: (i * 53) % 220,
+      size: (i % 3 === 0) ? 2 : 1,
+      speed: 0.2 + (i % 5) * 0.15,
+      twinkle: i * 0.7
+    }));
+
+    function drawPixelRect(x, y, w, h, color) {
+      pctx.fillStyle = color;
+      pctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
+    }
+
+    function drawPixelCircle(cx, cy, r, color) {
+      pctx.fillStyle = color;
+      for (let y = -r; y <= r; y++) {
+        for (let x = -r; x <= r; x++) {
+          if (x * x + y * y <= r * r) {
+            pctx.fillRect(Math.floor(cx + x), Math.floor(cy + y), 1, 1);
+          }
+        }
+      }
+    }
+
+    // Scene Mode 1: Earth Core Drill
+    function renderDrillSimulation(t, intensity) {
+      const palettes = [
+        { sky: '#0f172a', rockA: '#3b2f2f', rockB: '#261e1e', glow: '#38bdf8' },
+        { sky: '#1a1215', rockA: '#4a3228', rockB: '#2d1e18', glow: '#fbbf24' },
+        { sky: '#241014', rockA: '#5c2822', rockB: '#3b1714', glow: '#f97316' },
+        { sky: '#2e0c0f', rockA: '#7c2d12', rockB: '#451a03', glow: '#ef4444' },
+        { sky: '#450a0a', rockA: '#b91c1c', rockB: '#7f1d1d', glow: '#fef08a' }
+      ];
+      const pal = palettes[Math.min(4, intensity - 1)];
+      drawPixelRect(0, 0, 180, 320, pal.rockB);
+
+      // Scrolling rock strata layers
+      const scroll = Math.floor(t * (22 + intensity * 14));
+      for (let y = -16; y < 320; y += 16) {
+        const wy = (y - (scroll % 16));
+        const rowIdx = Math.floor((y + scroll) / 16);
+        drawPixelRect(0, wy, 180, 8, (rowIdx % 2 === 0) ? pal.rockA : pal.rockB);
+        // Embedded mineral pixels
+        for (let i = 0; i < 6; i++) {
+          const mx = ((rowIdx * 31 + i * 29) % 160) + 10;
+          drawPixelRect(mx, wy + 2, 3, 3, (i % 2 === 0) ? pal.glow : '#64748b');
+        }
+      }
+
+      // Central borehole shaft
+      drawPixelRect(58, 0, 64, 155, '#090b10');
+      drawPixelRect(56, 0, 2, 155, pal.glow);
+      drawPixelRect(122, 0, 2, 155, pal.glow);
+
+      // Animated pixel drill rig
+      const jitter = (Math.sin(t * 50) > 0) ? 1 : -1;
+      const dx = 90 + jitter;
+      const dy = 118;
+      // Drill pipe
+      drawPixelRect(dx - 6, 0, 12, dy - 18, '#475569');
+      drawPixelRect(dx - 2, 0, 4, dy - 18, '#94a3b8');
+      // Drill body
+      drawPixelRect(dx - 16, dy - 22, 32, 22, '#cbd5e1');
+      drawPixelRect(dx - 12, dy - 18, 24, 6, pal.glow);
+      // Conical rotating bit teeth
+      for (let layer = 0; layer < 7; layer++) {
+        const w = 28 - layer * 4;
+        const stripe = ((Math.floor(t * 25) + layer) % 2 === 0) ? '#f8fafc' : '#64748b';
+        drawPixelRect(dx - w / 2, dy + layer * 4, w, 4, stripe);
+      }
+
+      // Sparks & magma particles flying up
+      for (let p = 0; p < 16 + intensity * 5; p++) {
+        const phase = (t * (3 + (p % 3)) + p * 0.27) % 1;
+        const px = dx + Math.sin(p * 1.9 + t * 4) * (12 + phase * 38);
+        const py = dy + 24 - phase * 65;
+        drawPixelRect(px, py, 2, 2, (p % 2 === 0) ? pal.glow : '#ffffff');
+      }
+    }
+
+    // Scene Mode 2: Falling Into Saturn
+    function renderSaturnSimulation(t, intensity) {
+      const bgColors = ['#1e1b4b', '#312e81', '#451a03', '#78350f', '#3b0764'];
+      const bandColors = ['#fcd34d', '#f59e0b', '#d97706', '#9333ea', '#e879f9'];
+      drawPixelRect(0, 0, 180, 320, bgColors[Math.min(4, intensity - 1)]);
+
+      // Horizontal rushing gas bands
+      for (let y = 0; y < 320; y += 10) {
+        const shift = Math.floor(t * (25 + intensity * 15) + y * 0.5) % 20;
+        if (shift < 10) {
+          drawPixelRect(0, y, 180, 5, bandColors[Math.min(4, intensity - 1)] + '33');
+        }
+      }
+
+      // Metallic hydrogen lightning bolts on high intensity
+      if (intensity >= 3 && Math.sin(t * 19) > 0.65) {
+        let lx = 30 + ((Math.floor(t * 43) * 37) % 120);
+        for (let ly = 40; ly < 210; ly += 8) {
+          lx += (Math.sin(ly + t * 30) > 0) ? 4 : -4;
+          drawPixelRect(lx, ly, 2, 8, '#e0f2fe');
+        }
+      }
+
+      // Falling 8-bit Astronaut Sprite in center
+      const ax = 90 + Math.sin(t * 6) * 8;
+      const ay = 122 + Math.cos(t * 9) * 5;
+      const squeeze = (intensity === 5) ? 0.6 : 1;
+      // Backpack & Suit
+      drawPixelRect(ax - 8 * squeeze, ay - 8, 16 * squeeze, 18, '#e2e8f0');
+      // Helmet & Gold Visor
+      drawPixelRect(ax - 7 * squeeze, ay - 18, 14 * squeeze, 11, '#f8fafc');
+      drawPixelRect(ax - 5 * squeeze, ay - 15, 10 * squeeze, 6, '#fbbf24');
+      // Arms & Legs flailing
+      const limbOffset = Math.floor(Math.sin(t * 18) * 3);
+      drawPixelRect(ax - 13 * squeeze, ay - 6 + limbOffset, 5, 4, '#cbd5e1');
+      drawPixelRect(ax + 8 * squeeze, ay - 6 - limbOffset, 5, 4, '#cbd5e1');
+      drawPixelRect(ax - 6 * squeeze, ay + 10, 4, 6 + limbOffset, '#94a3b8');
+      drawPixelRect(ax + 2 * squeeze, ay + 10, 4, 6 - limbOffset, '#94a3b8');
+
+      // Upward rushing wind streaks
+      for (let i = 0; i < 22; i++) {
+        const wx = (i * 23) % 176;
+        const wy = 240 - ((t * (90 + intensity * 30) + i * 31) % 230);
+        drawPixelRect(wx, wy, 1, 9 + intensity * 2, '#f8fafc');
+      }
+    }
+
+    // Scene Mode 3: Gravity & Relativity Clocks
+    function renderRelativitySimulation(t, intensity) {
+      drawPixelRect(0, 0, 180, 320, '#060814');
+      stars.forEach(s => {
+        drawPixelRect(s.x, s.y, s.size, s.size, '#64748b');
+      });
+
+      // Central cosmic body & gravitational grid warp
+      const cx = 90, cy = 128;
+      for (let gx = 10; gx <= 170; gx += 16) {
+        for (let gy = 48; gy <= 200; gy += 16) {
+          const dx = gx - cx, dy = gy - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy) + 1;
+          const pull = Math.min(28, (intensity * 180) / dist);
+          const px = gx - (dx / dist) * pull;
+          const py = gy - (dy / dist) * pull;
+          drawPixelRect(px, py, 1, 1, '#1e3a8a');
+        }
+      }
+
+      // Draw Cosmic Body by intensity
+      const colors = ['#38bdf8', '#fbbf24', '#e2e8f0', '#a855f7', '#000000'];
+      const radii = [18, 24, 14, 12, 20];
+      const bodyColor = colors[Math.min(4, intensity - 1)];
+      const r = radii[Math.min(4, intensity - 1)];
+
+      if (intensity === 5) {
+        // Black hole accretion disk
+        drawPixelCircle(cx, cy, 32, '#f97316');
+        drawPixelCircle(cx, cy, 26, '#fde047');
+        drawPixelCircle(cx, cy, 19, '#000000');
+        drawPixelRect(cx - 42, cy - 3, 84, 6, '#fb923c');
+      } else {
+        drawPixelCircle(cx, cy, r + 4, bodyColor + '44');
+        drawPixelCircle(cx, cy, r, bodyColor);
+      }
+
+      // Twin Pixel Clocks (Left: Earth Clock fast, Right: Local Gravity Clock slowed)
+      const drawClock = (x, y, rate, labelColor) => {
+        drawPixelCircle(x, y, 16, '#1e293b');
+        drawPixelCircle(x, y, 14, '#0f172a');
+        const angle = t * rate;
+        for (let i = 0; i < 11; i++) {
+          drawPixelRect(x + Math.cos(angle) * i, y + Math.sin(angle) * i, 2, 2, labelColor);
+        }
+      };
+      drawClock(42, 72, 6.0, '#38bdf8');
+      const slowFactor = [6.0, 4.2, 2.0, 0.7, 0.04][Math.min(4, intensity - 1)];
+      drawClock(138, 72, slowFactor, '#f43f5e');
+    }
+
+    // Scene Mode 4: Rising Sea Levels & Pixel City Skyline
+    function renderFloodSimulation(t, intensity) {
+      drawPixelRect(0, 0, 180, 320, '#0c1426');
+      // Stars/clouds
+      stars.slice(0, 25).forEach(s => drawPixelRect(s.x, s.y * 0.5, 1, 1, '#94a3b8'));
+
+      // Pixel Skyline Buildings
+      const buildings = [
+        { x: 10, w: 22, h: 95, c: '#334155' },
+        { x: 36, w: 26, h: 135, c: '#475569' },
+        { x: 66, w: 20, h: 110, c: '#1e293b' },
+        { x: 92, w: 28, h: 155, c: '#334155' },
+        { x: 124, w: 22, h: 120, c: '#475569' },
+        { x: 150, w: 20, h: 85, c: '#1e293b' }
+      ];
+      const groundY = 215;
+      buildings.forEach((b, idx) => {
+        const topY = groundY - b.h;
+        drawPixelRect(b.x, topY, b.w, b.h, b.c);
+        // Lit pixel windows
+        for (let wy = topY + 6; wy < groundY - 6; wy += 8) {
+          for (let wx = b.x + 4; wx < b.x + b.w - 4; wx += 6) {
+            const lit = ((wx + wy + idx) % 3 !== 0);
+            drawPixelRect(wx, wy, 3, 4, lit ? '#fde047' : '#0f172a');
+          }
+        }
+      });
+
+      // Rising Translucent Pixel Water Level
+      const waterHeights = [18, 45, 78, 112, 148];
+      const wh = waterHeights[Math.min(4, intensity - 1)] + Math.sin(t * 4) * 3;
+      const waterTop = groundY - wh;
+
+      // Wave crest
+      for (let x = 0; x < 180; x += 4) {
+        const wave = Math.floor(Math.sin(x * 0.1 + t * 6) * 2);
+        drawPixelRect(x, waterTop + wave, 4, 3, '#38bdf8');
+        drawPixelRect(x, waterTop + wave + 3, 4, groundY - waterTop + 20, 'rgba(14, 165, 233, 0.72)');
+      }
+    }
+
+    // Scene Mode 5: Cosmic Photon Speed Race
+    function renderLightspeedSimulation(t, intensity) {
+      drawPixelRect(0, 0, 180, 320, '#05070e');
+      const starSpeed = [35, 18, 8, 2, 0.2][Math.min(4, intensity - 1)];
+      stars.forEach(s => {
+        const sx = (s.x - t * starSpeed * s.speed * 10) % 180;
+        const wrappedX = sx < 0 ? sx + 180 : sx;
+        drawPixelRect(wrappedX, s.y, s.size + (intensity === 1 ? 3 : 0), 1, '#94a3b8');
+      });
+
+      // Left Origin Body & Right Target Body
+      drawPixelCircle(26, 125, 12, '#3b82f6'); // Earth
+      const targetColors = ['#cbd5e1', '#ef4444', '#fde047', '#c084fc', '#f43f5e'];
+      drawPixelCircle(154, 125, 14, targetColors[Math.min(4, intensity - 1)]);
+
+      // Track line
+      drawPixelRect(40, 125, 100, 1, '#1e293b');
+
+      // Photon beam progression based on cosmic scale
+      const speeds = [1.8, 0.45, 0.15, 0.04, 0.002];
+      const progress = (t * speeds[Math.min(4, intensity - 1)]) % 1;
+      const px = 42 + progress * 96;
+      drawPixelRect(42, 124, Math.max(4, px - 42), 3, '#38bdf8');
+      drawPixelCircle(px, 125, 4, '#fef08a');
+    }
+
+    // Scene Mode 6: Mariana Trench Abyssal Descent
+    function renderOceanSimulation(t, intensity) {
+      const depths = ['#0284c7', '#0369a1', '#1e3a8a', '#0f172a', '#020617'];
+      drawPixelRect(0, 0, 180, 320, depths[Math.min(4, intensity - 1)]);
+
+      // Trench canyon walls closing in
+      for (let y = 0; y < 230; y += 6) {
+        const wallW = 12 + intensity * 5 + Math.floor(Math.sin(y * 0.08 + t * 2) * 5);
+        drawPixelRect(0, y, wallW, 6, '#090d16');
+        drawPixelRect(180 - wallW, y, wallW, 6, '#090d16');
+      }
+
+      // Bioluminescent Jellyfish / Angler particles
+      for (let i = 0; i < 18; i++) {
+        const bx = 35 + ((i * 29) % 110);
+        const by = 220 - ((t * 22 + i * 19) % 200);
+        drawPixelRect(bx, by, 2, 2, (i % 2 === 0) ? '#22d3ee' : '#a855f7');
+      }
+
+      // Pixel Deep-Sea Submersible
+      const sx = 90, sy = 120 + Math.sin(t * 3) * 5;
+      drawPixelRect(sx - 14, sy - 8, 28, 16, '#facc15');
+      drawPixelCircle(sx + 6, sy, 5, '#38bdf8');
+      // Searchlight cone
+      pctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
+      pctx.beginPath();
+      pctx.moveTo(sx + 12, sy);
+      pctx.lineTo(sx + 58, sy + 28);
+      pctx.lineTo(sx + 58, sy - 18);
+      pctx.closePath();
+      pctx.fill();
+    }
+
+    // Scene Mode 7: Subatomic Quantum Zoom
+    function renderQuantumSimulation(t, intensity) {
+      drawPixelRect(0, 0, 180, 320, '#070514');
+      const cx = 90, cy = 122;
+
+      // Concentric quantum orbital rings
+      for (let ring = 1; ring <= 4; ring++) {
+        const r = ((ring * 18 + t * 24) % 72);
+        const pts = 24;
+        for (let i = 0; i < pts; i++) {
+          const a = (i / pts) * Math.PI * 2 + t * (ring % 2 === 0 ? 1.5 : -1.5);
+          drawPixelRect(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 2, 2, (ring % 2 === 0) ? '#22d3ee' : '#ec4899');
+        }
+      }
+
+      // Nucleus / Quarks
+      for (let q = 0; q < 3 + intensity; q++) {
+        const qa = t * 5 + q * 2.1;
+        const qr = 6 + (q % 2) * 5;
+        drawPixelCircle(cx + Math.cos(qa) * qr, cy + Math.sin(qa) * qr, 5, (q % 2 === 0) ? '#f43f5e' : '#38bdf8');
+      }
+    }
+
+    // Scene Mode 8: Dyson Swarm Megastructure
+    function renderDysonSimulation(t, intensity) {
+      drawPixelRect(0, 0, 180, 320, '#090514');
+      stars.forEach(s => drawPixelRect(s.x, s.y, 1, 1, '#475569'));
+
+      const cx = 90, cy = 122;
+      // Blazing Star
+      drawPixelCircle(cx, cy, 28, '#f97316');
+      drawPixelCircle(cx, cy, 22, '#fde047');
+
+      // Orbiting Dyson Hex Mirrors
+      const mirrorCount = intensity * 14;
+      for (let m = 0; m < mirrorCount; m++) {
+        const orbitR = 36 + (m % 3) * 10;
+        const angle = t * (0.8 + (m % 4) * 0.3) + m * 0.45;
+        const mx = cx + Math.cos(angle) * orbitR;
+        const my = cy + Math.sin(angle) * (orbitR * 0.55);
+        drawPixelRect(mx - 2, my - 2, 4, 4, '#38bdf8');
+        drawPixelRect(mx - 1, my - 1, 2, 2, '#e0f2fe');
+      }
+
+      // Directed energy beam at intensity 5
+      if (intensity >= 4) {
+        drawPixelRect(cx - 3, cy + 22, 6, 85, '#38bdf8');
+        drawPixelRect(cx - 1, cy + 22, 2, 85, '#ffffff');
+      }
+    }
+
+    // Master Frame Render Loop
+    function renderFrame(now) {
+      const dt = Math.min(0.1, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+
+      const episode = episodes[currentEpisodeIndex];
+      const scene = episode.scenes[currentSceneIndex] || episode.scenes[0];
+
+      if (isPlaying) {
+        sceneElapsed += dt;
+        stepBackgroundArp(dt, scene.intensity || 3);
+
+        // Typewriter progression & sound blips
+        const charsPerSec = 32;
+        typedCharsCount = Math.min(scene.caption.length, Math.floor(sceneElapsed * charsPerSec));
+        if (typedCharsCount > lastTypedCharIndex && typedCharsCount <= scene.caption.length) {
+          const ch = scene.caption[typedCharsCount - 1];
+          if (typedCharsCount % 2 === 0) playTextBlip(ch);
+          lastTypedCharIndex = typedCharsCount;
+        }
+
+        // Advance scene when duration finishes
+        if (sceneElapsed >= scene.duration) {
+          advanceToNextScene(true);
+        }
+      }
+
+      if (screenShakeTimer > 0) {
+        screenShakeTimer = Math.max(0, screenShakeTimer - dt);
+      }
+
+      // 1. Render 180x320 Pixel Scene onto Offscreen Canvas
+      const t = now / 1000;
+      pctx.clearRect(0, 0, 180, 320);
+
+      switch (scene.mode) {
+        case 'drill': renderDrillSimulation(t, scene.intensity); break;
+        case 'saturn': renderSaturnSimulation(t, scene.intensity); break;
+        case 'relativity': renderRelativitySimulation(t, scene.intensity); break;
+        case 'flood': renderFloodSimulation(t, scene.intensity); break;
+        case 'lightspeed': renderLightspeedSimulation(t, scene.intensity); break;
+        case 'ocean': renderOceanSimulation(t, scene.intensity); break;
+        case 'quantum': renderQuantumSimulation(t, scene.intensity); break;
+        case 'dyson': renderDysonSimulation(t, scene.intensity); break;
+        default: renderDrillSimulation(t, scene.intensity);
+      }
+
+      // 2. Upscale Offscreen 180x320 -> Main 540x960 Canvas (Crisp 3x Pixel Scaling)
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const shakeX = screenShakeTimer > 0 ? (Math.random() - 0.5) * 14 : 0;
+      const shakeY = screenShakeTimer > 0 ? (Math.random() - 0.5) * 14 : 0;
+      ctx.drawImage(offscreen, shakeX, shakeY, canvas.width, canvas.height);
+
+      // 3. Optional Retro Pixel Grid Overlay
+      if (prefs.pixelGrid) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+        for (let x = 0; x < canvas.width; x += 3) {
+          ctx.fillRect(x, 0, 1, canvas.height);
+        }
+      }
+
+      // 4. Top HUD Telemetry Bar (Inside Canvas so it exports in video!)
+      ctx.fillStyle = 'rgba(9, 11, 16, 0.86)';
+      ctx.fillRect(24, 34, 492, 92);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(24, 34, 492, 92);
+
+      // Episode Title Tag
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 14px "JetBrains Mono", monospace';
+      ctx.fillText(episode.title.toUpperCase().slice(0, 38), 42, 60);
+
+      // Primary Live Metric Readout
+      ctx.fillStyle = '#fde047';
+      ctx.font = '18px "Press Start 2P", monospace';
+      ctx.fillText(scene.metric.slice(0, 24), 42, 92);
+
+      // Scientific Subfact
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 14px "JetBrains Mono", monospace';
+      ctx.fillText(scene.subfact.slice(0, 38), 42, 114);
+
+      // 5. Intensity Progress Gauge on Left Edge
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.fillRect(26, 150, 16, 420);
+      const fillH = (scene.intensity / 5) * 412;
+      const grad = ctx.createLinearGradient(0, 154, 0, 566);
+      grad.addColorStop(0, '#38bdf8');
+      grad.addColorStop(0.5, '#f59e0b');
+      grad.addColorStop(1, '#ef4444');
+      ctx.fillStyle = grad;
+      ctx.fillRect(28, 154, 12, fillH);
+
+      // 6. Retro RPG Typewriter Caption Box (Lower-Center Safe Zone)
+      const boxY = 635;
+      ctx.fillStyle = 'rgba(9, 11, 18, 0.92)';
+      ctx.fillRect(24, boxY, 492, 185);
+      ctx.strokeStyle = '#f8fafc';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(24, boxY, 492, 185);
+
+      // Scene Badge + Creator Handle inside RPG Box Header
+      ctx.fillStyle = '#0ea5e9';
+      ctx.fillRect(40, boxY - 14, 130, 26);
+      ctx.fillStyle = '#020617';
+      ctx.font = 'bold 12px "Press Start 2P", monospace';
+      ctx.fillText(`STAGE ${currentSceneIndex + 1}/${episode.scenes.length}`, 50, boxY + 4);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 14px "JetBrains Mono", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(prefs.handle || '@pxl_whatif', 498, boxY + 28);
+      ctx.textAlign = 'left';
+
+      // Wrapped Typewriter Text
+      const visibleText = scene.caption.slice(0, typedCharsCount);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 21px "Inter", sans-serif';
+      wrapCanvasText(ctx, visibleText, 44, boxY + 62, 452, 30);
+
+      // Blinking retro cursor
+      if (Math.floor(t * 4) % 2 === 0) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(44, boxY + 158, 14, 6);
+      }
+
+      // 7. Optional Reels / TikTok Safe-Zone UI Chrome Overlay
+      if (prefs.reelsOverlay) {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
+        // Right action stack icons
+        const actions = ['♥ 248K', '💬 4.1K', '🔖 89K', '↗ Share'];
+        actions.forEach((lbl, idx) => {
+          const ay = 360 + idx * 62;
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+          ctx.fillRect(438, ay, 82, 42);
+          ctx.fillStyle = '#e2e8f0';
+          ctx.font = 'bold 13px "Inter", sans-serif';
+          ctx.fillText(lbl, 448, ay + 26);
+        });
+
+        // Bottom caption metadata bar
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '14px "Inter", sans-serif';
+        ctx.fillText(`${prefs.handle} • Original 8-Bit Synth Audio`, 32, 868);
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '13px "JetBrains Mono", monospace';
+        ctx.fillText(episode.hashtags || '#whatif #pixelart #science', 32, 892);
+      }
+
+      // 8. Optional CRT Scanlines Overlay
+      if (prefs.scanlines) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+        for (let y = 0; y < canvas.height; y += 4) {
+          ctx.fillRect(0, y, canvas.width, 2);
+        }
+      }
+
+      // Bottom progress bar for current scene
+      const pct = Math.min(1, sceneElapsed / scene.duration);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 950, 540, 10);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(0, 950, 540 * pct, 10);
+
+      ctx.restore();
+
+      // Update live timecode UI
+      updateTimecodeDisplay();
+      requestAnimationFrame(renderFrame);
+    }
+
+    function wrapCanvasText(context, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      let line = '';
+      let curY = y;
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          context.fillText(line, x, curY);
+          line = words[n] + ' ';
+          curY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      context.fillText(line, x, curY);
+    }
+
+    // =========================================================================
+    // 5. UI CONTROLLERS, TIMELINE SYNCHRONIZATION & EDITOR BINDINGS
+    // =========================================================================
+    function getTotalEpisodeDuration(ep) {
+      return ep.scenes.reduce((acc, s) => acc + Number(s.duration || 4), 0);
+    }
+
+    function getElapsedEpisodeTime() {
+      const ep = episodes[currentEpisodeIndex];
+      let sum = 0;
+      for (let i = 0; i < currentSceneIndex; i++) {
+        sum += Number(ep.scenes[i].duration || 4);
+      }
+      return sum + sceneElapsed;
+    }
+
+    function updateTimecodeDisplay() {
+      const ep = episodes[currentEpisodeIndex];
+      const total = getTotalEpisodeDuration(ep);
+      const cur = Math.min(total, getElapsedEpisodeTime());
+      const el = document.getElementById('timecodeDisplay');
+      if (el) {
+        el.textContent = `${cur.toFixed(1)}s / ${total.toFixed(1)}s`;
+      }
+    }
+
+    function renderEpisodeList() {
+      const container = document.getElementById('episodeList');
+      const badge = document.getElementById('episodeCountBadge');
+      if (badge) badge.textContent = `${episodes.length} Presets`;
+
+      container.innerHTML = episodes.map((ep, idx) => {
+        const active = idx === currentEpisodeIndex;
+        return `
+          <button type="button" data-ep-idx="${idx}" class="ep-select-btn w-full text-left px-3 py-2 rounded-lg border transition flex items-center justify-between gap-2 ${
+            active
+              ? 'bg-cyan-500/15 border-cyan-400 text-white shadow-sm'
+              : 'bg-slate-900/80 border-slate-800/90 text-slate-300 hover:bg-slate-800/80 hover:border-slate-700'
+          }">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold truncate">${idx + 1}. ${ep.title}</div>
+              <div class="text-[10px] text-slate-400 font-mono-code flex items-center gap-2 mt-0.5">
+                <span class="text-cyan-400">${ep.category || 'Viral'}</span>
+                <span>•</span>
+                <span>${ep.scenes.length} Scenes (${getTotalEpisodeDuration(ep).toFixed(0)}s)</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono-code px-1.5 py-0.5 rounded ${active ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'}">
+              ${active ? 'LIVE' : 'LOAD'}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.ep-select-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-ep-idx'));
+          selectEpisode(idx);
+        });
+      });
+    }
+
+    function renderSceneTimelineAndPills() {
+      const ep = episodes[currentEpisodeIndex];
+      document.getElementById('inpEpisodeTitle').value = ep.title;
+
+      // Progress pills above transport
+      const pillsEl = document.getElementById('sceneProgressPills');
+      pillsEl.innerHTML = ep.scenes.map((s, idx) => {
+        const isCurrent = idx === currentSceneIndex;
+        const isPast = idx < currentSceneIndex;
+        return `
+          <button type="button" data-pill-idx="${idx}" class="h-2 rounded-full transition ${
+            isCurrent ? 'bg-cyan-400' : isPast ? 'bg-cyan-700' : 'bg-slate-800 hover:bg-slate-700'
+          }" title="Jump to Scene ${idx + 1}"></button>
+        `;
+      }).join('');
+
+      pillsEl.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          jumpToScene(Number(btn.getAttribute('data-pill-idx')), true);
+        });
+      });
+
+      // Right-column scene cards
+      const listEl = document.getElementById('sceneTimelineList');
+      listEl.innerHTML = ep.scenes.map((s, idx) => {
+        const active = idx === currentSceneIndex;
+        return `
+          <div data-scene-idx="${idx}" class="scene-card-item p-2.5 rounded-lg border border-slate-800 bg-slate-900/75 hover:border-slate-700 cursor-pointer transition ${active ? 'active-scene-card' : ''}">
+            <div class="flex items-center justify-between text-[11px] font-mono-code mb-1">
+              <span class="font-bold ${active ? 'text-cyan-300' : 'text-slate-400'}">SCENE 0${idx + 1} • ${s.mode.toUpperCase()}</span>
+              <span class="text-amber-300">${s.duration}s • SFX:${s.sfx}</span>
+            </div>
+            <div class="text-xs text-slate-200 line-clamp-2">${s.caption}</div>
+            <div class="text-[10px] font-mono-code text-slate-400 mt-1 truncate">${s.metric}</div>
+          </div>
+        `;
+      }).join('');
+
+      listEl.querySelectorAll('.scene-card-item').forEach(card => {
+        card.addEventListener('click', () => {
+          jumpToScene(Number(card.getAttribute('data-scene-idx')), true);
+        });
+      });
+
+      populateSceneInspector();
+    }
+
+    function populateSceneInspector() {
+      const ep = episodes[currentEpisodeIndex];
+      const scene = ep.scenes[currentSceneIndex];
+      if (!scene) return;
+
+      document.getElementById('inspectorSceneBadge').textContent = `SCENE ${currentSceneIndex + 1} / ${ep.scenes.length}`;
+      document.getElementById('inpSceneCaption').value = scene.caption;
+      document.getElementById('inpSceneMetric').value = scene.metric;
+      document.getElementById('inpSceneSubfact').value = scene.subfact;
+      document.getElementById('selSceneMode').value = scene.mode;
+      document.getElementById('selSceneSfx').value = scene.sfx;
+      document.getElementById('inpSceneDuration').value = scene.duration;
+      document.getElementById('rngSceneIntensity').value = scene.intensity;
+      document.getElementById('lblSceneIntensity').textContent = `Level ${scene.intensity} / 5`;
+    }
+
+    function selectEpisode(index) {
+      currentEpisodeIndex = index;
+      currentSceneIndex = 0;
+      sceneElapsed = 0;
+      typedCharsCount = 0;
+      lastTypedCharIndex = -1;
+      renderEpisodeList();
+      renderSceneTimelineAndPills();
+      const firstScene = episodes[currentEpisodeIndex].scenes[0];
+      if (firstScene) playSynthSfx(firstScene.sfx);
+    }
+
+    function jumpToScene(index, triggerSfx = false) {
+      const ep = episodes[currentEpisodeIndex];
+      if (index < 0) index = 0;
+      if (index >= ep.scenes.length) index = 0;
+      currentSceneIndex = index;
+      sceneElapsed = 0;
+      typedCharsCount = 0;
+      lastTypedCharIndex = -1;
+      renderSceneTimelineAndPills();
+      if (triggerSfx) {
+        playSynthSfx(ep.scenes[currentSceneIndex].sfx);
+      }
+    }
+
+    function advanceToNextScene(triggerSfx = true) {
+      const ep = episodes[currentEpisodeIndex];
+      if (currentSceneIndex + 1 < ep.scenes.length) {
+        jumpToScene(currentSceneIndex + 1, triggerSfx);
+      } else {
+        // If recording video, stop automatically at the end of the episode!
+        if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
+          stopVideoRecording();
+        }
+        jumpToScene(0, triggerSfx);
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastBanner');
+      const text = document.getElementById('toastMessage');
+      text.textContent = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3200);
+    }
+
+    // =========================================================================
+    // 6. VIDEO (.WEBM) RECORDING & SCRIPT / FRAME EXPORT
+    // =========================================================================
+    function startVideoRecording() {
+      initAudioEngine();
+      if (!canvas.captureStream) {
+        showToast('Canvas video recording is not supported in this browser.');
+        return;
+      }
+
+      // Reset to beginning of current episode so full Reel records cleanly
+      jumpToScene(0, true);
+      isPlaying = true;
+      updatePlayPauseButtonUI();
+
+      const canvasStream = canvas.captureStream(30);
+      const combinedTracks = [...canvasStream.getVideoTracks()];
+      if (mediaStreamDest && mediaStreamDest.stream) {
+        combinedTracks.push(...mediaStreamDest.stream.getAudioTracks());
+      }
+      const combinedStream = new MediaStream(combinedTracks);
+
+      recordedChunks = [];
+      let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+      }
+
+      try {
+        mediaRecorder = new MediaRecorder(combinedStream, options);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(canvasStream);
+      }
+
+      mediaRecorder.ondataavailable = (ev) => {
+        if (ev.data && ev.data.size > 0) recordedChunks.push(ev.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const safeName = episodes[currentEpisodeIndex].title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+        a.href = url;
+        a.download = `${safeName}_reel.webm`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('Downloaded 9:16 Pixel Reel (.webm) with 8-bit audio!');
+      };
+
+      mediaRecorder.start();
+      isRecording = true;
+      document.getElementById('recordLabel').textContent = 'Stop & Save .WebM';
+      document.getElementById('recordDot').classList.add('animate-ping');
+      showToast('Recording full episode in 9:16! Will auto-save when episode finishes.');
+    }
+
+    function stopVideoRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+      isRecording = false;
+      document.getElementById('recordLabel').textContent = 'Export .WebM Reel';
+      document.getElementById('recordDot').classList.remove('animate-ping');
+    }
+
+    function updatePlayPauseButtonUI() {
+      document.getElementById('playPauseIcon').textContent = isPlaying ? '⏸' : '▶';
+      document.getElementById('playPauseText').textContent = isPlaying ? 'Pause' : 'Play';
+    }
+
+    // =========================================================================
+    // 7. VIRAL IDEA CONJURER MODAL LOGIC
+    // =========================================================================
+    let activeModalCategory = 'all';
+
+    function renderConjuredIdeasModal() {
+      const allPool = [...EXTRA_CONJURED_IDEAS, ...INITIAL_EPISODES.map(ep => ({
+        id: ep.id,
+        title: ep.title,
+        category: ep.category,
+        hook: ep.scenes[0].caption,
+        payoff: ep.scenes[ep.scenes.length - 1].caption,
+        scenes: ep.scenes
+      }))];
+
+      const filtered = activeModalCategory === 'all'
+        ? allPool
+        : allPool.filter(item => item.category === activeModalCategory);
+
+      const grid = document.getElementById('conjuredIdeasGrid');
+      grid.innerHTML = filtered.map((idea, idx) => `
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono-code bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">${idea.category}</span>
+              <h4 class="text-xs sm:text-sm font-bold text-white">${idea.title}</h4>
+            </div>
+            <p class="text-xs text-amber-300 font-medium">Hook: "${idea.hook}"</p>
+            <p class="text-[11px] text-slate-400">Payoff: "${idea.payoff}"</p>
+          </div>
+          <button type="button" data-load-idea="${idea.id}" class="load-conjured-btn shrink-0 px-3 py-2 rounded-lg text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition">
+            Load Into Studio →
+          </button>
+        </div>
+      `).join('');
+
+      grid.querySelectorAll('.load-conjured-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-load-idea');
+          const foundInPool = allPool.find(x => x.id === targetId);
+          if (!foundInPool) return;
+
+          const existingIdx = episodes.findIndex(e => e.id === foundInPool.id);
+          if (existingIdx !== -1) {
+            selectEpisode(existingIdx);
+          } else {
+            episodes.unshift({
+              id: foundInPool.id,
+              title: foundInPool.title,
+              category: foundInPool.category,
+              hashtags: '#whatif #pixelart #viralscience #cosmos',
+              scenes: JSON.parse(JSON.stringify(foundInPool.scenes))
+            });
+            selectEpisode(0);
+          }
+          document.getElementById('ideaModal').classList.add('hidden');
+          document.getElementById('ideaModal').classList.remove('flex');
+          showToast(`Loaded "${foundInPool.title}" into the 9:16 Pixel Studio!`);
+        });
+      });
+    }
+
+    // =========================================================================
+    // 8. EVENT LISTENERS & INITIALIZATION
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderEpisodeList();
+      renderSceneTimelineAndPills();
+
+      // Unlock audio on first click anywhere
+      document.body.addEventListener('pointerdown', () => {
+        if (!audioUnlocked) initAudioEngine();
+      }, { once: true });
+
+      document.getElementById('audioUnlockBanner').addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudioEngine();
+        playSynthSfx('powerup');
+      });
+
+      // Canvas click toggles play/pause
+      canvas.addEventListener('click', () => {
+        initAudioEngine();
+        isPlaying = !isPlaying;
+        updatePlayPauseButtonUI();
+      });
+
+      // Transport Controls
+      document.getElementById('btnPlayPause').addEventListener('click', () => {
+        initAudioEngine();
+        isPlaying = !isPlaying;
+        updatePlayPauseButtonUI();
+      });
+      document.getElementById('btnPrevScene').addEventListener('click', () => {
+        initAudioEngine();
+        jumpToScene(currentSceneIndex - 1, true);
+      });
+      document.getElementById('btnNextScene').addEventListener('click', () => {
+        initAudioEngine();
+        advanceToNextScene(true);
+      });
+      document.getElementById('btnRestart').addEventListener('click', () => {
+        initAudioEngine();
+        jumpToScene(0, true);
+      });
+
+      // Audio Toggle Header Button
+      document.getElementById('btnAudioToggle').addEventListener('click', () => {
+        initAudioEngine();
+        prefs.audioEnabled = !prefs.audioEnabled;
+        document.getElementById('audioIcon').textContent = prefs.audioEnabled ? '🔊' : '🔇';
+        document.getElementById('audioLabel').textContent = prefs.audioEnabled ? '8-Bit Audio: ON' : '8-Bit Audio: MUTED';
+        if (prefs.audioEnabled) playSynthSfx('ping');
+      });
+
+      // Record Video Button
+      document.getElementById('btnRecordVideo').addEventListener('click', () => {
+        if (isRecording) {
+          stopVideoRecording();
+        } else {
+          startVideoRecording();
+        }
+      });
+
+      // Snap PNG Frame
+      document.getElementById('btnSnapFrame').addEventListener('click', () => {
+        const dataUrl = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `pxl_reel_scene_${currentSceneIndex + 1}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('Saved high-res 9:16 pixel frame as PNG!');
+      });
+
+      // Copy Script to Clipboard
+      document.getElementById('btnCopyScript').addEventListener('click', () => {
+        const ep = episodes[currentEpisodeIndex];
+        const formatted = [
+          `TITLE: ${ep.title}`,
+          `CREATOR: ${prefs.handle}`,
+          `HASHTAGS: ${ep.hashtags || '#whatif #pixelart #science'}`,
+          '',
+          ...ep.scenes.map((s, idx) => `[Scene ${idx + 1} | ${s.duration}s | ${s.metric} | SFX: ${s.sfx}]\n"${s.caption}"`)
+        ].join('\n');
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(formatted).then(() => {
+            showToast('Copied viral script, timestamps & hashtags to clipboard!');
+          }).catch(() => fallbackCopy(formatted));
+        } else {
+          fallbackCopy(formatted);
+        }
+      });
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Copied viral script, timestamps & hashtags to clipboard!');
+      }
+
+      // Retro Shader & Synth Checkboxes
+      document.getElementById('chkScanlines').addEventListener('change', (e) => { prefs.scanlines = e.target.checked; });
+      document.getElementById('chkPixelGrid').addEventListener('change', (e) => { prefs.pixelGrid = e.target.checked; });
+      document.getElementById('chkReelsOverlay').addEventListener('change', (e) => { prefs.reelsOverlay = e.target.checked; });
+      document.getElementById('chkBgDrone').addEventListener('change', (e) => { prefs.bgDrone = e.target.checked; });
+      document.getElementById('selVoicePitch').addEventListener('change', (e) => {
+        prefs.voicePitch = e.target.value;
+        playTextBlip('A');
+      });
+      document.getElementById('rngVolume').addEventListener('input', (e) => {
+        prefs.volume = Number(e.target.value) / 100;
+        if (masterGain) masterGain.gain.value = prefs.volume;
+      });
+
+      // Live SFX Soundboard Pads
+      document.querySelectorAll('.sfx-pad-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playSynthSfx(btn.getAttribute('data-sfx'));
+        });
+      });
+
+      // Episode & Scene Inspector Live Edits
+      document.getElementById('inpEpisodeTitle').addEventListener('input', (e) => {
+        episodes[currentEpisodeIndex].title = e.target.value;
+        renderEpisodeList();
+      });
+      document.getElementById('inpChannelHandle').addEventListener('input', (e) => {
+        prefs.handle = e.target.value;
+      });
+      document.getElementById('inpSceneCaption').addEventListener('input', (e) => {
+        const scene = episodes[currentEpisodeIndex].scenes[currentSceneIndex];
+        scene.caption = e.target.value;
+        typedCharsCount = scene.caption.length;
+        renderSceneTimelineAndPills();
+      });
+      document.getElementById('inpSceneMetric').addEventListener('input', (e) => {
+        episodes[currentEpisodeIndex].scenes[currentSceneIndex].metric = e.target.value;
+        renderSceneTimelineAndPills();
+      });
+      document.getElementById('inpSceneSubfact').addEventListener('input', (e) => {
+        episodes[currentEpisodeIndex].scenes[currentSceneIndex].subfact = e.target.value;
+      });
+      document.getElementById('selSceneMode').addEventListener('change', (e) => {
+        episodes[currentEpisodeIndex].scenes[currentSceneIndex].mode = e.target.value;
+        renderSceneTimelineAndPills();
+      });
+      document.getElementById('selSceneSfx').addEventListener('change', (e) => {
+        const sfx = e.target.value;
+        episodes[currentEpisodeIndex].scenes[currentSceneIndex].sfx = sfx;
+        playSynthSfx(sfx);
+        renderSceneTimelineAndPills();
+      });
+      document.getElementById('inpSceneDuration').addEventListener('input', (e) => {
+        const val = Math.max(1.5, Math.min(20, Number(e.target.value) || 4));
+        episodes[currentEpisodeIndex].scenes[currentSceneIndex].duration = val;
+        renderSceneTimelineAndPills();
+      });
+      document.getElementById('rngSceneIntensity').addEventListener('input', (e) => {
+        const val = Number(e.target.value);
+        episodes[currentEpisodeIndex].scenes[currentSceneIndex].intensity = val;
+        document.getElementById('lblSceneIntensity').textContent = `Level ${val} / 5`;
+      });
+
+      // Add & Delete Scene Buttons
+      document.getElementById('btnAddScene').addEventListener('click', () => {
+        const ep = episodes[currentEpisodeIndex];
+        const current = ep.scenes[currentSceneIndex] || ep.scenes[0];
+        ep.scenes.push({
+          mode: current.mode,
+          intensity: Math.min(5, (current.intensity || 3) + 1),
+          duration: 4.0,
+          sfx: 'powerup',
+          metric: 'NEW METRIC READOUT',
+          subfact: 'CUSTOM SCIENTIFIC CALLOUT',
+          caption: 'Add your dramatic twist or scale comparison here.'
+        });
+        jumpToScene(ep.scenes.length - 1, true);
+        showToast('Added new scene to episode timeline!');
+      });
+
+      document.getElementById('btnDeleteScene').addEventListener('click', () => {
+        const ep = episodes[currentEpisodeIndex];
+        if (ep.scenes.length <= 1) {
+          showToast('An episode must have at least 1 scene.');
+          return;
+        }
+        ep.scenes.splice(currentSceneIndex, 1);
+        currentSceneIndex = Math.max(0, currentSceneIndex - 1);
+        renderSceneTimelineAndPills();
+        showToast('Removed scene from timeline.');
+      });
+
+      // Surprise Concept & Custom Episode Buttons
+      document.getElementById('btnRandomIdea').addEventListener('click', () => {
+        initAudioEngine();
+        const nextIdx = (currentEpisodeIndex + 1 + Math.floor(Math.random() * (episodes.length - 1))) % episodes.length;
+        selectEpisode(nextIdx);
+        showToast(`Loaded "${episodes[nextIdx].title}"`);
+      });
+
+      document.getElementById('btnNewBlankEpisode').addEventListener('click', () => {
+        episodes.unshift({
+          id: 'custom-' + Date.now(),
+          title: 'Custom What-If Simulation',
+          category: 'Custom',
+          hashtags: '#whatif #pixelart #customreel',
+          scenes: [
+            {
+              mode: 'quantum',
+              intensity: 2,
+              duration: 4.0,
+              sfx: 'powerup',
+              metric: 'STAGE 1: THE HOOK',
+              subfact: 'CUSTOM PIXEL SIMULATION',
+              caption: 'Type your opening curiosity-gap hook in the Scene Editor on the right!'
+            },
+            {
+              mode: 'dyson',
+              intensity: 4,
+              duration: 4.0,
+              sfx: 'explosion',
+              metric: 'STAGE 2: THE PAYOFF',
+              subfact: 'MIND-BENDING SCALE TWIST',
+              caption: 'Add more scenes and choose from 8 procedural pixel simulations.'
+            }
+          ]
+        });
+        selectEpisode(0);
+        showToast('Created a new custom episode template!');
+      });
+
+      // Conjure Viral Idea Modal
+      const modal = document.getElementById('ideaModal');
+      document.getElementById('btnConjureIdea').addEventListener('click', () => {
+        renderConjuredIdeasModal();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      });
+      document.getElementById('btnCloseModal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+      document.getElementById('btnShuffleModalIdeas').addEventListener('click', () => {
+        EXTRA_CONJURED_IDEAS.reverse();
+        renderConjuredIdeasModal();
+        playSynthSfx('powerup');
+      });
+      document.querySelectorAll('.idea-cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeModalCategory = btn.getAttribute('data-cat');
+          document.querySelectorAll('.idea-cat-btn').forEach(b => {
+            b.className = 'idea-cat-btn px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700';
+          });
+          btn.className = 'idea-cat-btn px-3 py-1 rounded-full text-xs font-medium bg-cyan-500 text-slate-950';
+          renderConjuredIdeasModal();
+        });
+      });
+
+      // Start 60fps Pixel Simulation Loop
+      lastFrameTime = performance.now();
+      requestAnimationFrame(renderFrame);
+    });
+  </script>
+</body>
+</html>
